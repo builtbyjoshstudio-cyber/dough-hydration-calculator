@@ -149,7 +149,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Inputs listener
     targetValueInput.addEventListener("input", calculateRatios);
-    flourType.addEventListener("change", calculateRatios);
+    flourType.addEventListener("change", () => {
+        const selectedFlour = flourType.value;
+        if (selectedFlour === 'buckwheat-soba') {
+            hydrationSlider.value = 40;
+            hydrationBubble.textContent = "40%";
+            bakingPreset.value = "soba";
+        } else if (selectedFlour === 'ramen-alkaline') {
+            hydrationSlider.value = 35;
+            hydrationBubble.textContent = "35%";
+            bakingPreset.value = "tokyo-ramen";
+        } else if (selectedFlour === 'pasta-semolina') {
+            hydrationSlider.value = 45;
+            hydrationBubble.textContent = "45%";
+            bakingPreset.value = "custom";
+        } else if (selectedFlour === 'tipo-00') {
+            hydrationSlider.value = 60;
+            hydrationBubble.textContent = "60%";
+            bakingPreset.value = "neapolitan";
+        }
+        calculateRatios();
+    });
 
     // Baker's Percentage Core Engine
     function calculateRatios() {
@@ -158,9 +178,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const mode = calcMode.value;
         const selectedFlour = flourType.value;
 
-        // Constants: Salt (2%), Yeast (1%)
+        // Constants: Salt (2%), Yeast (1% unless unleavened noodle)
         const saltPct = 2;
-        const yeastPct = 1;
+        const hasYeast = !(selectedFlour === "buckwheat-soba" || selectedFlour === "pasta-semolina");
+        const yeastPct = hasYeast ? 1 : 0;
 
         let flourMass = 0;
         let waterMass = 0;
@@ -174,14 +195,14 @@ document.addEventListener("DOMContentLoaded", () => {
             flourMass = (targetVal * 100) / totalPct;
             waterMass = (flourMass * hydration) / 100;
             saltMass = (flourMass * saltPct) / 100;
-            yeastMass = (flourMass * yeastPct) / 100;
+            yeastMass = hasYeast ? (flourMass * yeastPct) / 100 : 0;
             totalDoughWeight = targetVal;
         } else {
             // mode === "flour-mass"
             flourMass = targetVal;
             waterMass = (flourMass * hydration) / 100;
             saltMass = (flourMass * saltPct) / 100;
-            yeastMass = (flourMass * yeastPct) / 100;
+            yeastMass = hasYeast ? (flourMass * yeastPct) / 100 : 0;
             totalDoughWeight = flourMass + waterMass + saltMass + yeastMass;
         }
 
@@ -195,6 +216,12 @@ document.addEventListener("DOMContentLoaded", () => {
         saltOutput.textContent = formatVal(saltMass, decimals) + unitSuffix;
         yeastOutput.textContent = formatVal(yeastMass, decimals) + unitSuffix;
         waterPctLabel.textContent = `${hydration}% hydration`;
+
+        // Yeast Mass Visibility Toggle (Hidden for unleavened buckwheat-soba and pasta-semolina)
+        const yeastRow = yeastOutput.closest(".anatomy-row");
+        if (yeastRow) {
+            yeastRow.style.display = hasYeast ? "flex" : "none";
+        }
 
         // Special Rule for Ramen: Kansui substitution
         if (selectedFlour === "ramen-alkaline") {
