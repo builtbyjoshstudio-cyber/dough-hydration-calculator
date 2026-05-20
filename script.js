@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
 
     // State Variables
-    let currentUnit = 'g'; // 'g' (metric) or 'oz' (imperial)
+    let currentUnit = 'oz'; // 'oz' (imperial) or 'g' (metric)
 
     // Elements
     const unitMetricBtn = document.getElementById("unit-metric");
@@ -268,6 +268,8 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (unit.toLowerCase() === 'oz' || unit.toLowerCase() === 'imperial') {
                 setWeightUnit('oz');
             }
+        } else {
+            setWeightUnit('oz');
         }
 
         if (mode && (mode === 'total-dough' || mode === 'flour-mass')) {
@@ -281,6 +283,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (weight) {
             targetValueInput.value = weight;
+        } else {
+            targetValueInput.value = currentUnit === 'g' ? "1000" : "35.3";
         }
 
         if (flour) {
