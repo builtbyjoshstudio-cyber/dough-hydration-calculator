@@ -750,5 +750,31 @@ body {
   padding-bottom: 3rem !important;
 }
 
+/* ---------- ONBOARDING TUTORIAL PANEL ---------- */
+.onboarding-steps {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.step-col {
+  flex: 1;
+  min-width: 200px;
+}
+.step-col h4 {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+.step-col p {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+
 
 
