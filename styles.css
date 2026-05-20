@@ -743,7 +743,7 @@ body {
 }
 
 /* ---------- FLUID LAYOUT OVERHAUL ---------- */
-.glass-panel, .results-container, .anatomy, .compare, .col, .type-card {
+.glass, .glass-panel, .results-container, .anatomy, .compare, .col, .type-card, .anatomy-stage, .anatomy-labels {
   height: auto !important;
   max-height: none !important;
   overflow: visible !important;

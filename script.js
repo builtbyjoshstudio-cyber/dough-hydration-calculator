@@ -55,15 +55,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const saltOutput = document.getElementById("salt-output");
     const yeastOutput = document.getElementById("yeast-output");
     const waterPctLabel = document.getElementById("water-pct-label");
+    const yeastLabel = document.getElementById("yeast-label");
+    const yeastPctLabel = document.getElementById("yeast-pct-label");
     const warningContainer = document.getElementById("absorbency-warning-container");
+    const eggNoteContainer = document.getElementById("egg-note-container");
     const pipelineLinkPan = document.getElementById("pipeline-link-pan");
 
     // Presets mapping
     const presets = {
         neapolitan: 60,
-        baguette: 65,
         sourdough: 72,
-        ciabatta: 80
+        baguette: 65,
+        ciabatta: 82,
+        "tokyo-ramen": 35,
+        soba: 40
     };
 
     // Set weight unit state
@@ -117,11 +122,9 @@ document.addEventListener("DOMContentLoaded", () => {
     calcMode.addEventListener("change", () => {
         if (calcMode.value === 'total-dough') {
             targetLabel.textContent = currentUnit === 'g' ? "Target Dough Weight (g)" : "Target Dough Weight (oz)";
-            // default metric/imperial total weight
             targetValueInput.value = currentUnit === 'g' ? "1000" : "35.3";
         } else {
             targetLabel.textContent = currentUnit === 'g' ? "Target Flour Mass (g)" : "Target Flour Mass (oz)";
-            // default metric/imperial flour mass
             targetValueInput.value = currentUnit === 'g' ? "600" : "21.2";
         }
         calculateRatios();
@@ -151,8 +154,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Baker's Percentage Core Engine
     function calculateRatios() {
         const targetVal = parseFloat(targetValueInput.value) || 0;
-        const hydration = parseInt(hydrationSlider.value) || 70;
+        const hydration = parseInt(hydrationSlider.value) || 72;
         const mode = calcMode.value;
+        const selectedFlour = flourType.value;
 
         // Constants: Salt (2%), Yeast (1%)
         const saltPct = 2;
@@ -192,10 +196,41 @@ document.addEventListener("DOMContentLoaded", () => {
         yeastOutput.textContent = formatVal(yeastMass, decimals) + unitSuffix;
         waterPctLabel.textContent = `${hydration}% hydration`;
 
-        // Absorbency Interceptor (Low protein flour + high hydration > 72%)
-        const selectedFlour = flourType.value;
-        const isLowProtein = (selectedFlour === "all-purpose" || selectedFlour === "00-pizza");
-        if (isLowProtein && hydration > 72) {
+        // Special Rule for Ramen: Kansui substitution
+        if (selectedFlour === "ramen-alkaline") {
+            yeastLabel.textContent = "Kansui (Alkaline Salts)";
+            yeastPctLabel.textContent = "1% of flour weight";
+        } else {
+            yeastLabel.textContent = "Yeast Mass";
+            yeastPctLabel.textContent = "1% base weight";
+        }
+
+        // Special Rule for Pasta: Egg conversion note
+        if (selectedFlour === "pasta-semolina") {
+            const eggWeight = currentUnit === 'g' ? 50 : 1.76;
+            const eggsCount = (waterMass / eggWeight).toFixed(1);
+            eggNoteContainer.innerHTML = `🥚 <strong>Chef's Egg Conversion:</strong> For traditional egg pasta, you can replace the water weight (${formatVal(waterMass, decimals)}${unitSuffix}) with whole eggs. At approximately 50g (1.8 oz) per large egg, this recipe requires about <strong>${eggsCount} large eggs</strong> to reach the target hydration.`;
+            eggNoteContainer.style.display = "block";
+        } else {
+            eggNoteContainer.style.display = "none";
+        }
+
+        // Absorbency Interceptor (Hydration caps/bounds)
+        let warningText = "";
+        const isNoodleFlour = ["buckwheat-soba", "ramen-alkaline", "pasta-semolina"].includes(selectedFlour);
+
+        if (isNoodleFlour && hydration > 48) {
+            warningText = "⚠️ Structural Warning: Noodle and pasta doughs require low hydration (typically under 48%). Exceeding this limit will make the dough too soft and sticky, causing it to lose its firm, bite-resistant chew and preventing it from rolling and cutting into clean noodle strands.";
+        } else if (selectedFlour === "ap-flour" && hydration > 65) {
+            warningText = "⚠️ Structural Warning: Hydration above 65% exceeds the optimal physical capacity of All-Purpose Flour. The dough may become overly sticky and lose its structure, making it difficult to knead or shape.";
+        } else if (selectedFlour === "tipo-00" && hydration > 62) {
+            warningText = "⚠️ Structural Warning: Hydration above 62% exceeds the optimal capacity of standard Tipo 00 Flour. The dough may become unmanageably sticky and fail to hold shape without advanced slap-and-fold techniques.";
+        } else if (selectedFlour === "gluten-free" && hydration < 75) {
+            warningText = "⚠️ Structural Warning: Gluten-free blends require high hydration (at least 75%) to activate binder agents like xanthan gum. Hydration below 75% will cause dry cracking and a crumbly, dry baked texture.";
+        }
+
+        if (warningText) {
+            warningContainer.textContent = warningText;
             warningContainer.style.display = "block";
         } else {
             warningContainer.style.display = "none";
@@ -203,7 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Update pipeline cross-promotion link
         if (pipelineLinkPan) {
-            // Forward parameters: doughWeight (metric or imperial target weight) and unit
             pipelineLinkPan.href = getToolUrl('panSwap', {
                 doughWeight: totalDoughWeight.toFixed(decimals),
                 unit: currentUnit === 'g' ? 'metric' : 'imperial'
@@ -251,14 +285,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (flour) {
             const selectVal = flour.toLowerCase();
-            if (['bread-flour', 'whole-wheat', 'all-purpose', '00-pizza'].includes(selectVal)) {
+            const validFlours = [
+                'ap-flour', 'bread-flour', 'whole-wheat', 'rye-flour', 
+                'ancient-grain', 'tipo-00', 'high-gluten', 
+                'buckwheat-soba', 'ramen-alkaline', 'pasta-semolina', 'gluten-free'
+            ];
+            if (validFlours.includes(selectVal)) {
                 flourType.value = selectVal;
             }
         }
 
         if (preset) {
             const selectPreset = preset.toLowerCase();
-            if (['neapolitan', 'baguette', 'sourdough', 'ciabatta', 'custom'].includes(selectPreset)) {
+            const validPresets = ['neapolitan', 'sourdough', 'baguette', 'ciabatta', 'tokyo-ramen', 'soba', 'custom'];
+            if (validPresets.includes(selectPreset)) {
                 bakingPreset.value = selectPreset;
                 if (selectPreset !== 'custom' && presets[selectPreset] !== undefined) {
                     hydrationSlider.value = presets[selectPreset];
@@ -269,7 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (hydration) {
             const hydVal = parseInt(hydration);
-            if (hydVal >= 50 && hydVal <= 90) {
+            if (hydVal >= 30 && hydVal <= 95) {
                 hydrationSlider.value = hydVal;
                 hydrationBubble.textContent = `${hydVal}%`;
                 bakingPreset.value = "custom";

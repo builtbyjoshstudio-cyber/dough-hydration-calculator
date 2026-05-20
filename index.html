@@ -191,11 +191,28 @@
           <div style="display: flex; gap: 16px; flex-wrap: wrap;">
              <div class="input-group">
                 <span class="input-label">Flour Type</span>
-                <select id="flour-type" class="form-input">
-                   <option value="bread-flour">Bread Flour (High Protein)</option>
-                   <option value="whole-wheat">Whole Wheat (High Protein)</option>
-                   <option value="all-purpose">All-Purpose (Medium Protein)</option>
-                   <option value="00-pizza">00 Pizza Flour (Lower Protein)</option>
+                <select id="flour-type" name="flourType" class="form-input">
+                    <optgroup label="Standard Wheat">
+                        <option value="ap-flour">All-Purpose Flour</option>
+                        <option value="bread-flour">Bread Flour</option>
+                    </optgroup>
+                    <optgroup label="Artisanal &amp; Whole Grains">
+                        <option value="whole-wheat">Whole Wheat Flour</option>
+                        <option value="rye-flour">Dark Rye Flour</option>
+                        <option value="ancient-grain">Spelt / Einkorn</option>
+                    </optgroup>
+                    <optgroup label="Pizza Specialists">
+                        <option value="tipo-00">Tipo 00 Flour (Neapolitan)</option>
+                        <option value="high-gluten">High-Gluten / NY Style Flour</option>
+                    </optgroup>
+                    <optgroup label="Noodle &amp; Pasta Specialists">
+                        <option value="buckwheat-soba">Buckwheat Flour (Soba)</option>
+                        <option value="ramen-alkaline">Ramen / Alkaline Flour</option>
+                        <option value="pasta-semolina">Semolina / Egg Pasta Flour</option>
+                    </optgroup>
+                    <optgroup label="Alternative Blends">
+                        <option value="gluten-free">Gluten-Free Baking Blend</option>
+                    </optgroup>
                 </select>
              </div>
              <div class="input-group">
@@ -203,9 +220,11 @@
                 <select id="baking-preset" class="form-input">
                    <option value="custom">Custom Configuration</option>
                    <option value="neapolitan">Neapolitan Pizza (60% Hydration)</option>
-                   <option value="baguette">French Baguette (65% Hydration)</option>
                    <option value="sourdough">Sourdough Boule (72% Hydration)</option>
-                   <option value="ciabatta">Italian Ciabatta (80% Hydration)</option>
+                   <option value="baguette">French Baguette (65% Hydration)</option>
+                   <option value="ciabatta">Italian Ciabatta (82% Hydration)</option>
+                   <option value="tokyo-ramen">Tokyo Ramen (35% Hydration)</option>
+                   <option value="soba">100% Soba Noodles (40% Hydration)</option>
                 </select>
              </div>
           </div>
@@ -229,7 +248,7 @@
                 <span class="input-label">Hydration Percentage</span>
                 <span id="hydration-bubble" style="font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--accent);">72%</span>
              </div>
-             <input type="range" id="hydration-slider" class="form-input-range" min="50" max="90" value="72">
+             <input type="range" id="hydration-slider" class="form-input-range" min="30" max="95" value="72">
           </div>
 
        </div>
@@ -273,17 +292,23 @@
           </div>
 
           <div class="glass-lite anatomy-row">
-            <div class="ix">🍞</div>
+            <div class="ix" id="yeast-icon">🍞</div>
             <div>
-              <h4>Yeast Mass</h4>
-              <p>1% base weight</p>
+              <h4 id="yeast-label">Yeast Mass</h4>
+              <p id="yeast-pct-label">1% base weight</p>
             </div>
             <code id="yeast-output">6 g</code>
           </div>
        </div>
 
+       <!-- Pasta Egg Note Container -->
+       <div id="egg-note-container" style="display: none; grid-column: 1 / -1; margin-top: 16px; font-family: var(--font-ui); font-size: 13px; color: var(--accent); line-height: 1.5; padding: 12px; border: 1px solid var(--hairline-2); border-radius: 8px; background: var(--glass-bg-2);">
+           <!-- Injected dynamically -->
+       </div>
+
+       <!-- Absorbency Interceptor Warning Container -->
        <div id="absorbency-warning-container" style="display: none; grid-column: 1 / -1; margin-top: 16px; font-family: var(--font-ui); font-size: 13px; font-weight: 500; color: var(--neg); line-height: 1.5; padding: 12px; border: 1px dashed color-mix(in oklab, var(--neg) 40%, transparent); border-radius: 8px; background: rgba(178, 58, 26, 0.08);">
-           ⚠️ Structural Warning: This hydration level exceeds the optimal structural capacity of your selected flour type. The dough may become unmanageably sticky and fail to hold shape without advanced slap-and-fold techniques.
+           <!-- Injected dynamically -->
        </div>
     </div>
 
